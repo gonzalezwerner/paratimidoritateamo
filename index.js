@@ -10,12 +10,19 @@ Swal.fire({
 const canvas = document.getElementById("heart");
 const ctx = canvas.getContext("2d");
 const dpr = window.devicePixelRatio || 1;
+
+// Escala el canvas al DPR del dispositivo
 canvas.width = window.innerWidth * dpr;
 canvas.height = window.innerHeight * dpr;
 canvas.style.width = window.innerWidth + "px";
 canvas.style.height = window.innerHeight + "px";
 ctx.scale(dpr, dpr);
 
+// 🎵 Audio
+const audio = new Audio("https://github.com/gonzalezwerner/paratimidoritateamo/raw/refs/heads/main/Axel%20-%20Te%20Voy%20A%20Amar%20(mp3cut.net).mp3");
+audio.loop = true;
+
+// ❤️ Frases
 const frases = [
   "Eres el amor de mi vida, Dorita 💖",
   "Desde que llegaste, todo es mejor 🌅",
@@ -27,7 +34,6 @@ const frases = [
   "Gracias por elegirme cada día 🌹",
   "Contigo aprendí lo que es amar de verdad 💘"
 ];
-
 let fraseActual = frases[0];
 let fraseIndex = 0;
 setInterval(() => {
@@ -35,12 +41,8 @@ setInterval(() => {
   fraseActual = frases[fraseIndex];
 }, 2000);
 
-// Audio 🎵
-const audio = new Audio("https://github.com/gonzalezwerner/paratimidoritateamo/raw/refs/heads/main/Axel%20-%20Te%20Voy%20A%20Amar%20(mp3cut.net).mp3");
-audio.loop = true;
-
+// ❤️ Dibuja el corazón estático antes del clic
 let heartPath = new Path2D();
-
 function heartPos(t, scale = 1) {
   const x = 16 * Math.pow(Math.sin(t), 3);
   const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
@@ -49,11 +51,9 @@ function heartPos(t, scale = 1) {
     y: canvas.height / (2 * dpr) + y * scale
   };
 }
-
 function drawStaticHeart() {
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, canvas.width / dpr, canvas.height / dpr);
-
   heartPath = new Path2D();
   for (let t = 0; t <= Math.PI * 2; t += 0.01) {
     const pos = heartPos(t, 15);
@@ -63,27 +63,29 @@ function drawStaticHeart() {
   heartPath.closePath();
   ctx.fillStyle = "red";
   ctx.fill(heartPath);
-
   ctx.font = "14px Arial";
   ctx.fillStyle = "white";
   ctx.textAlign = "center";
   ctx.fillText("Haz clic en el corazón 💖", canvas.width / (2 * dpr), canvas.height / (2 * dpr) + 50);
 }
-
 drawStaticHeart();
+
+function isClickInsideHeart(x, y) {
+  return ctx.isPointInPath(heartPath, x, y);
+}
 
 canvas.addEventListener("click", function handleClick(e) {
   const rect = canvas.getBoundingClientRect();
-  const x = (e.clientX - rect.left) * dpr;
-  const y = (e.clientY - rect.top) * dpr;
-
-  if (ctx.isPointInPath(heartPath, x, y)) {
+  const x = (e.clientX - rect.left);
+  const y = (e.clientY - rect.top);
+  if (isClickInsideHeart(x, y)) {
     canvas.removeEventListener("click", handleClick);
     audio.play().catch(() => {});
     startAnimation();
   }
 });
 
+// 🎇 Animación principal
 function startAnimation() {
   const rand = Math.random;
   const traceCount = 50;
@@ -100,7 +102,6 @@ function startAnimation() {
 
   const heartPointsCount = pointsOrigin.length;
   let targetPoints = [];
-
   function pulse(kx, ky) {
     for (let i = 0; i < pointsOrigin.length; i++) {
       targetPoints[i] = [
@@ -115,8 +116,7 @@ function startAnimation() {
     const x = rand() * width;
     const y = rand() * height;
     e[i] = {
-      vx: 0,
-      vy: 0,
+      vx: 0, vy: 0,
       speed: rand() + 5,
       q: ~~(rand() * heartPointsCount),
       D: 2 * (i % 2) - 1,
@@ -138,10 +138,7 @@ function startAnimation() {
   }, 300);
 
   let time = 0;
-  const config = {
-    traceK: 0.4,
-    timeDelta: 0.01
-  };
+  const config = { traceK: 0.4, timeDelta: 0.01 };
 
   function loop() {
     let n = -Math.cos(time);
@@ -152,12 +149,10 @@ function startAnimation() {
     ctx.fillRect(0, 0, width, height);
 
     for (let i = e.length; i--;) {
-      const u = e[i];
-      const q = targetPoints[u.q];
+      const u = e[i], q = targetPoints[u.q];
       const dx = u.trace[0].x - q[0];
       const dy = u.trace[0].y - q[1];
       const length = Math.sqrt(dx * dx + dy * dy);
-
       if (length < 10) {
         if (rand() > 0.95) u.q = ~~(rand() * heartPointsCount);
         else {
@@ -165,7 +160,6 @@ function startAnimation() {
           u.q = (u.q + u.D + heartPointsCount) % heartPointsCount;
         }
       }
-
       u.vx += (-dx / length) * u.speed;
       u.vy += (-dy / length) * u.speed;
       u.trace[0].x += u.vx;
@@ -174,8 +168,7 @@ function startAnimation() {
       u.vy *= u.force;
 
       for (let k = 0; k < u.trace.length - 1;) {
-        const T = u.trace[k];
-        const N = u.trace[++k];
+        const T = u.trace[k], N = u.trace[++k];
         N.x -= config.traceK * (N.x - T.x);
         N.y -= config.traceK * (N.y - T.y);
       }
@@ -186,15 +179,18 @@ function startAnimation() {
       }
     }
 
-    ctx.font = `bold ${16 + n * 3}px Arial`;
+    // Frase
+    ctx.font = `bold ${14 + n * 2}px Arial`;
     ctx.textAlign = "center";
     ctx.fillStyle = `hsl(${(time * 100) % 360}, 100%, 70%)`;
     ctx.fillText(fraseActual, width / (2 * dpr), height / (2 * dpr));
 
-    ctx.font = "14px Courier New";
+    // Firma
+    ctx.font = "13px Courier New";
     ctx.fillStyle = "rgba(255,255,255,0.6)";
     ctx.fillText("Con todo mi amor, Alejandro", width / (2 * dpr), height / dpr - 30);
 
+    // Corazones flotando
     for (let i = floatingHearts.length - 1; i >= 0; i--) {
       const h = floatingHearts[i];
       h.y -= h.speed;
@@ -206,7 +202,6 @@ function startAnimation() {
       ctx.bezierCurveTo(h.x + h.size, h.y + h.size / 3, h.x + h.size / 2, h.y - h.size / 2, h.x, h.y);
       ctx.fill();
       ctx.globalAlpha = 1;
-
       if (h.y + h.size < 0) floatingHearts.splice(i, 1);
     }
 
