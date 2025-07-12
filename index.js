@@ -17,6 +17,7 @@ canvas.style.width = window.innerWidth + "px";
 canvas.style.height = window.innerHeight + "px";
 ctx.scale(dpr, dpr);
 
+// Frases románticas
 const frases = [
   "Eres el amor de mi vida, Dorita 💖",
   "Desde que llegaste, todo es mejor 🌅",
@@ -36,6 +37,7 @@ setInterval(() => {
   fraseActual = frases[fraseIndex];
 }, 2000);
 
+// Audio
 const audio = new Audio("https://github.com/gonzalezwerner/paratimidoritateamo/raw/refs/heads/main/Axel%20-%20Te%20Voy%20A%20Amar%20(mp3cut.net).mp3");
 audio.loop = true;
 
@@ -64,10 +66,10 @@ function drawStaticHeart() {
   ctx.fillStyle = "red";
   ctx.fill(heartPath);
 
-  ctx.font = "16px Arial";
+  ctx.font = "14px Arial";
   ctx.fillStyle = "white";
   ctx.textAlign = "center";
-  ctx.fillText("Haz clic en el corazón 💖", canvas.width / dpr / 2, canvas.height / dpr / 2 + 80);
+  ctx.fillText("Toca el corazón 💖", canvas.width / dpr / 2, canvas.height / dpr / 2 + 80);
 }
 
 function isClickInsideHeart(x, y) {
@@ -76,17 +78,31 @@ function isClickInsideHeart(x, y) {
 
 drawStaticHeart();
 
-canvas.addEventListener("click", function handleClick(e) {
+function handleInteraction(e) {
+  let clientX, clientY;
   const rect = canvas.getBoundingClientRect();
-  const mouseX = (e.clientX - rect.left);
-  const mouseY = (e.clientY - rect.top);
 
-  if (isClickInsideHeart(mouseX, mouseY)) {
-    canvas.removeEventListener("click", handleClick);
+  if (e.touches) {
+    clientX = e.touches[0].clientX;
+    clientY = e.touches[0].clientY;
+  } else {
+    clientX = e.clientX;
+    clientY = e.clientY;
+  }
+
+  const x = (clientX - rect.left);
+  const y = (clientY - rect.top);
+
+  if (isClickInsideHeart(x, y)) {
+    canvas.removeEventListener("click", handleInteraction);
+    canvas.removeEventListener("touchstart", handleInteraction);
     audio.play().catch(() => console.log("🔇 No se pudo reproducir audio"));
     startAnimation();
   }
-});
+}
+
+canvas.addEventListener("click", handleInteraction);
+canvas.addEventListener("touchstart", handleInteraction);
 
 function startAnimation() {
   const rand = Math.random;
@@ -191,7 +207,7 @@ function startAnimation() {
     }
 
     // Texto central
-    ctx.font = `bold ${14 + n * 2}px Arial`;
+    ctx.font = `bold ${12 + n * 2}px Arial`;
     ctx.textAlign = "center";
     ctx.fillStyle = `hsl(${(time * 100) % 360}, 100%, 70%)`;
     ctx.fillText(fraseActual, width / 2, height / 2);
