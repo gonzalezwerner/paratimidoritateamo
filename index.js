@@ -22,6 +22,12 @@ setInterval(() => {
   fraseActual = frases[fraseIndex];
 }, 2000);
 
+// 🎵 Audio
+const audio = new Audio("https://github.com/gonzalezwerner/paratimidoritateamo/raw/refs/heads/main/Axel%20-%20Te%20Voy%20A%20Amar%20(mp3cut.net).mp3");
+audio.loop = true;
+
+let heartPath = new Path2D(); // global para clics
+
 function heartPos(t, scale = 1) {
   const x = 16 * Math.pow(Math.sin(t), 3);
   const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
@@ -34,15 +40,16 @@ function heartPos(t, scale = 1) {
 function drawStaticHeart() {
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.beginPath();
+
+  heartPath = new Path2D();
   for (let t = 0; t <= Math.PI * 2; t += 0.01) {
     const pos = heartPos(t, 15);
-    if (t === 0) ctx.moveTo(pos.x, pos.y);
-    else ctx.lineTo(pos.x, pos.y);
+    if (t === 0) heartPath.moveTo(pos.x, pos.y);
+    else heartPath.lineTo(pos.x, pos.y);
   }
-  ctx.closePath();
+  heartPath.closePath();
   ctx.fillStyle = "red";
-  ctx.fill();
+  ctx.fill(heartPath);
 
   ctx.font = "20px Arial";
   ctx.fillStyle = "white";
@@ -51,23 +58,21 @@ function drawStaticHeart() {
 }
 
 function isClickInsideHeart(x, y) {
-  for (let t = 0; t <= Math.PI * 2; t += 0.01) {
-    const pos = heartPos(t, 15);
-    const dx = pos.x - x;
-    const dy = pos.y - y;
-    if (dx * dx + dy * dy < 100) return true;
-  }
-  return false;
+  return ctx.isPointInPath(heartPath, x, y);
 }
 
 drawStaticHeart();
 
-canvas.addEventListener("click", (e) => {
+canvas.addEventListener("click", function handleClick(e) {
   const rect = canvas.getBoundingClientRect();
   const mouseX = e.clientX - rect.left;
   const mouseY = e.clientY - rect.top;
 
   if (isClickInsideHeart(mouseX, mouseY)) {
+    canvas.removeEventListener("click", handleClick);
+    audio.play().catch(() => {
+      console.log("🔇 No se pudo reproducir automáticamente.");
+    });
     startAnimation();
   }
 });
@@ -82,8 +87,7 @@ function startAnimation() {
   const pointsOrigin = [];
   for (let i = 0; i < Math.PI * 2; i += dr) {
     const x = Math.pow(Math.sin(i), 3) * 210;
-    const y =
-      -(15 * Math.cos(i) - 5 * Math.cos(2 * i) - 2 * Math.cos(3 * i) - Math.cos(4 * i)) * 13;
+    const y = -(15 * Math.cos(i) - 5 * Math.cos(2 * i) - 2 * Math.cos(3 * i) - Math.cos(4 * i)) * 13;
     pointsOrigin.push([x, y]);
   }
 
@@ -175,15 +179,18 @@ function startAnimation() {
       }
     }
 
+    // Texto central
     ctx.font = `bold ${26 + n * 6}px Arial`;
     ctx.textAlign = "center";
     ctx.fillStyle = `hsl(${(time * 100) % 360}, 100%, 70%)`;
     ctx.fillText(fraseActual, width / 2, height / 2);
 
+    // Firma
     ctx.font = "16px Courier New";
     ctx.fillStyle = "rgba(255,255,255,0.6)";
     ctx.fillText("Con todo mi amor, Alejandro", width / 2, height - 30);
 
+    // Corazones flotando
     for (let i = floatingHearts.length - 1; i >= 0; i--) {
       const h = floatingHearts[i];
       h.y -= h.speed;
@@ -195,6 +202,7 @@ function startAnimation() {
       ctx.bezierCurveTo(h.x + h.size, h.y + h.size / 3, h.x + h.size / 2, h.y - h.size / 2, h.x, h.y);
       ctx.fill();
       ctx.globalAlpha = 1;
+
       if (h.y + h.size < 0) floatingHearts.splice(i, 1);
     }
 
