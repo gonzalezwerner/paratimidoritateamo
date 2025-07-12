@@ -1,3 +1,12 @@
+Swal.fire({
+  title: "Te amo Mi vida Eres Todo Para mi",
+  text: "Siempre serás mi prioridad, en cada instante, en cada decisión y en cada latido de mi corazón. Porque desde que llegaste, todo cobra sentido. Mi princesa, mi todo",
+  imageUrl: "https://github.com/gonzalezwerner/paratimidoritateamo/raw/cb5307491de937e82669b1857c1137133938fd4c/MIVIDA.jpg",
+  imageWidth: 200,
+  imageHeight: 200,
+  imageAlt: "Siempre serás mi prioridad, en cada instante, en cada decisión y en cada latido de mi corazón. Porque desde que llegaste, todo cobra sentido. Mi princesa, mi todo"
+});
+
 const canvas = document.getElementById("heart");
 const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
