@@ -1,16 +1,21 @@
 Swal.fire({
-  title: "Te amo Mi vida Eres Todo Para mí",
+  title: "Te amo mi vida, eres todo para mí",
   text: "Siempre serás mi prioridad, en cada instante, en cada decisión y en cada latido de mi corazón. Porque desde que llegaste, todo cobra sentido. Mi princesa, mi todo.",
   imageUrl: "https://github.com/gonzalezwerner/paratimidoritateamo/raw/cb5307491de937e82669b1857c1137133938fd4c/MIVIDA.jpg",
   imageWidth: 200,
   imageHeight: 200,
-  imageAlt: "Imagen de mi amor"
+  imageAlt: "Imagen de amor"
 });
 
 const canvas = document.getElementById("heart");
 const ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+
+const dpr = window.devicePixelRatio || 1;
+canvas.width = window.innerWidth * dpr;
+canvas.height = window.innerHeight * dpr;
+canvas.style.width = window.innerWidth + "px";
+canvas.style.height = window.innerHeight + "px";
+ctx.scale(dpr, dpr);
 
 const frases = [
   "Eres el amor de mi vida, Dorita 💖",
@@ -31,7 +36,6 @@ setInterval(() => {
   fraseActual = frases[fraseIndex];
 }, 2000);
 
-// 🎵 Audio
 const audio = new Audio("https://github.com/gonzalezwerner/paratimidoritateamo/raw/refs/heads/main/Axel%20-%20Te%20Voy%20A%20Amar%20(mp3cut.net).mp3");
 audio.loop = true;
 
@@ -41,14 +45,14 @@ function heartPos(t, scale = 1) {
   const x = 16 * Math.pow(Math.sin(t), 3);
   const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
   return {
-    x: canvas.width / 2 + x * scale,
-    y: canvas.height / 2 + y * scale
+    x: canvas.width / dpr / 2 + x * scale,
+    y: canvas.height / dpr / 2 + y * scale
   };
 }
 
 function drawStaticHeart() {
   ctx.fillStyle = "black";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillRect(0, 0, canvas.width / dpr, canvas.height / dpr);
 
   heartPath = new Path2D();
   for (let t = 0; t <= Math.PI * 2; t += 0.01) {
@@ -63,7 +67,7 @@ function drawStaticHeart() {
   ctx.font = "16px Arial";
   ctx.fillStyle = "white";
   ctx.textAlign = "center";
-  ctx.fillText("Haz clic en el corazón 💖", canvas.width / 2, canvas.height / 2 + 80);
+  ctx.fillText("Haz clic en el corazón 💖", canvas.width / dpr / 2, canvas.height / dpr / 2 + 80);
 }
 
 function isClickInsideHeart(x, y) {
@@ -74,14 +78,12 @@ drawStaticHeart();
 
 canvas.addEventListener("click", function handleClick(e) {
   const rect = canvas.getBoundingClientRect();
-  const mouseX = e.clientX - rect.left;
-  const mouseY = e.clientY - rect.top;
+  const mouseX = (e.clientX - rect.left);
+  const mouseY = (e.clientY - rect.top);
 
   if (isClickInsideHeart(mouseX, mouseY)) {
     canvas.removeEventListener("click", handleClick);
-    audio.play().catch(() => {
-      console.log("🔇 No se pudo reproducir automáticamente.");
-    });
+    audio.play().catch(() => console.log("🔇 No se pudo reproducir audio"));
     startAnimation();
   }
 });
@@ -90,8 +92,8 @@ function startAnimation() {
   const rand = Math.random;
   const traceCount = 50;
   const dr = 0.1;
-  const width = canvas.width;
-  const height = canvas.height;
+  const width = canvas.width / dpr;
+  const height = canvas.height / dpr;
 
   const pointsOrigin = [];
   for (let i = 0; i < Math.PI * 2; i += dr) {
@@ -188,8 +190,8 @@ function startAnimation() {
       }
     }
 
-    // Texto más pequeño
-    ctx.font = `bold ${16 + n * 4}px Arial`;
+    // Texto central
+    ctx.font = `bold ${14 + n * 2}px Arial`;
     ctx.textAlign = "center";
     ctx.fillStyle = `hsl(${(time * 100) % 360}, 100%, 70%)`;
     ctx.fillText(fraseActual, width / 2, height / 2);
@@ -197,8 +199,9 @@ function startAnimation() {
     // Firma
     ctx.font = "12px Courier New";
     ctx.fillStyle = "rgba(255,255,255,0.6)";
-    ctx.fillText("Con todo mi amor, Alejandro", width / 2, height - 20);
+    ctx.fillText("Con todo mi amor, Alejandro", width / 2, height - 30);
 
+    // Corazones flotando
     for (let i = floatingHearts.length - 1; i >= 0; i--) {
       const h = floatingHearts[i];
       h.y -= h.speed;
@@ -210,6 +213,7 @@ function startAnimation() {
       ctx.bezierCurveTo(h.x + h.size, h.y + h.size / 3, h.x + h.size / 2, h.y - h.size / 2, h.x, h.y);
       ctx.fill();
       ctx.globalAlpha = 1;
+
       if (h.y + h.size < 0) floatingHearts.splice(i, 1);
     }
 
