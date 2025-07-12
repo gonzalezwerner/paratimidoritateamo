@@ -1,10 +1,10 @@
 Swal.fire({
-  title: "Te amo Mi vida Eres Todo Para mi",
-  text: "Siempre serás mi prioridad, en cada instante, en cada decisión y en cada latido de mi corazón. Porque desde que llegaste, todo cobra sentido. Mi princesa, mi todo",
+  title: "Te amo Mi vida Eres Todo Para mí",
+  text: "Siempre serás mi prioridad, en cada instante, en cada decisión y en cada latido de mi corazón. Porque desde que llegaste, todo cobra sentido. Mi princesa, mi todo.",
   imageUrl: "https://github.com/gonzalezwerner/paratimidoritateamo/raw/cb5307491de937e82669b1857c1137133938fd4c/MIVIDA.jpg",
   imageWidth: 200,
   imageHeight: 200,
-  imageAlt: "Siempre serás mi prioridad, en cada instante, en cada decisión y en cada latido de mi corazón. Porque desde que llegaste, todo cobra sentido. Mi princesa, mi todo"
+  imageAlt: "Imagen de mi amor"
 });
 
 const canvas = document.getElementById("heart");
@@ -35,7 +35,7 @@ setInterval(() => {
 const audio = new Audio("https://github.com/gonzalezwerner/paratimidoritateamo/raw/refs/heads/main/Axel%20-%20Te%20Voy%20A%20Amar%20(mp3cut.net).mp3");
 audio.loop = true;
 
-let heartPath = new Path2D(); // global para clics
+let heartPath = new Path2D();
 
 function heartPos(t, scale = 1) {
   const x = 16 * Math.pow(Math.sin(t), 3);
@@ -60,7 +60,7 @@ function drawStaticHeart() {
   ctx.fillStyle = "red";
   ctx.fill(heartPath);
 
-  ctx.font = "20px Arial";
+  ctx.font = "16px Arial";
   ctx.fillStyle = "white";
   ctx.textAlign = "center";
   ctx.fillText("Haz clic en el corazón 💖", canvas.width / 2, canvas.height / 2 + 80);
@@ -188,18 +188,17 @@ function startAnimation() {
       }
     }
 
-    // Texto central
-    ctx.font = `bold ${26 + n * 6}px Arial`;
+    // Texto más pequeño
+    ctx.font = `bold ${16 + n * 4}px Arial`;
     ctx.textAlign = "center";
     ctx.fillStyle = `hsl(${(time * 100) % 360}, 100%, 70%)`;
     ctx.fillText(fraseActual, width / 2, height / 2);
 
     // Firma
-    ctx.font = "16px Courier New";
+    ctx.font = "12px Courier New";
     ctx.fillStyle = "rgba(255,255,255,0.6)";
-    ctx.fillText("Con todo mi amor, Alejandro", width / 2, height - 30);
+    ctx.fillText("Con todo mi amor, Alejandro", width / 2, height - 20);
 
-    // Corazones flotando
     for (let i = floatingHearts.length - 1; i >= 0; i--) {
       const h = floatingHearts[i];
       h.y -= h.speed;
@@ -211,7 +210,6 @@ function startAnimation() {
       ctx.bezierCurveTo(h.x + h.size, h.y + h.size / 3, h.x + h.size / 2, h.y - h.size / 2, h.x, h.y);
       ctx.fill();
       ctx.globalAlpha = 1;
-
       if (h.y + h.size < 0) floatingHearts.splice(i, 1);
     }
 
